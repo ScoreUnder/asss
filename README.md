@@ -1,7 +1,7 @@
 # asss - Arbitrary Search spiritual successor
 
-Hey there's this ancient program out there called "arbitrary search", which is
-really good for finding text strings in ROMs.
+Hey there's this ancient program out there called "[arbitrary search][predecessor]",
+which is really good for finding text strings in ROMs.
 
 It has a few problems though:
 
@@ -69,3 +69,6 @@ for (size_t j = 0; j < search_string_len; j++) {
 ```
 
 </details>
+
+
+[predecessor]: http://www.thealmightyguru.com/Games/Hacking/Hacking-Programs.html
