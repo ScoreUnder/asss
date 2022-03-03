@@ -25,8 +25,9 @@ struct search_criteria *generate_search_criteria_from_string(const char *string)
     memset(checked, 0, 0x100);
 
     for (size_t i = 0; i < string_len; i++) {
-        if (checked[string[i]] != 0) continue;
-        checked[string[i]] = 1;
+        uint8_t c = string[i];
+        if (checked[c] != 0) continue;
+        checked[c] = 1;
 
         criteria->diffs[criteria->diffs_len++] = i;
 
@@ -145,7 +146,7 @@ int main(int argc, char **argv) {
         for (size_t i = 0; i <= buffer_filled - search_string_len; i++) {
             if (matches_criteria(&buffer[i], criteria)) {
                 printf("%zx: ", i + abs_pos);
-                print_translation_of((char *)&buffer[i], search_string, search_string_len);
+                print_translation_of(&buffer[i], (const uint8_t*) search_string, search_string_len);
                 putc('\n', stdout);
             }
         }

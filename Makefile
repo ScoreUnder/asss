@@ -1,4 +1,4 @@
-CFLAGS = -O2 -ggdb
+CFLAGS = -O2 -ggdb -Wall -Wextra -pedantic -std=c11
 OBJS = src/main.o
 OUT = asss
 
