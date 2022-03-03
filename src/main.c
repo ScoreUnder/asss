@@ -96,14 +96,6 @@ size_t get_skip_from_same_gap(const struct search_criteria *restrict criteria, s
 }
 
 size_t get_search_skip(const uint8_t *restrict data, const struct search_criteria *restrict criteria, size_t search_len) {
-    for (size_t i = 0; i < criteria->diffs_len; i++) {
-        uint8_t val = data[criteria->diffs[i]];
-        for (size_t j = i + 1; j < criteria->diffs_len; j++) {
-            if (val == data[criteria->diffs[j]])
-                return get_skip_from_same_gap(criteria, criteria->diffs[i], criteria->diffs[j], search_len);
-        }
-    }
-
     for (size_t i = 0; i + 1 < criteria->sames_len; i++) {
         uint8_t val = data[criteria->sames[i]];
         while (criteria->sames[i + 1] != SIZE_MAX) {
@@ -112,6 +104,14 @@ size_t get_search_skip(const uint8_t *restrict data, const struct search_criteri
             i++;
         }
         i++;
+    }
+
+    for (size_t i = 0; i < criteria->diffs_len; i++) {
+        uint8_t val = data[criteria->diffs[i]];
+        for (size_t j = i + 1; j < criteria->diffs_len; j++) {
+            if (val == data[criteria->diffs[j]])
+                return get_skip_from_same_gap(criteria, criteria->diffs[i], criteria->diffs[j], search_len);
+        }
     }
     return 0;
 }
