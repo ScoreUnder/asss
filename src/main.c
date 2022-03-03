@@ -15,48 +15,36 @@ struct search_criteria {
 struct search_criteria *generate_search_criteria_from_string(const char *string) {
     size_t string_len = strlen(string);
 
-    uint8_t *translation = malloc(0x100);
-    memset(translation, 0, 0x100);
-    uint8_t cur = 1;
-    for (size_t i = 0; i < string_len; i++) {
-        if (translation[string[i]] == 0) {
-            translation[string[i]] = cur++;
-        }
-    }
-
-    size_t *indexes = malloc(string_len * (string_len + 1) * sizeof(size_t));
-    memset(indexes, 0xFF, string_len * (string_len + 1) * sizeof(size_t));
-
-    for (size_t i = 0; i < string_len; i++) {
-        indexes[i * (string_len + 1)] = 0;
-    }
-
-    for (size_t i = 0; i < string_len; i++) {
-        size_t row = translation[string[i]] * (string_len + 1);
-        indexes[++indexes[row] + row] = i;
-    }
-    free(translation);
-
     struct search_criteria *restrict criteria = malloc(sizeof(struct search_criteria));
     criteria->sames = malloc(sizeof(size_t) * string_len * 2);
     criteria->sames_len = 0;
 
+    uint8_t *checked = malloc(0x100);
+    memset(checked, 0, 0x100);
     for (size_t i = 0; i < string_len; i++) {
-        size_t nsames = indexes[i * (string_len + 1)];
-        if (nsames > 1) {
-            memcpy(&criteria->sames[criteria->sames_len],
-                &indexes[i * (string_len + 1) + 1],
-                sizeof(size_t) * (nsames + 1));
-            criteria->sames_len += nsames + 1;
+        if (checked[string[i]] != 0) continue;
+        checked[string[i]] = 1;
+
+        bool have_same = false;
+        for (size_t j = i + 1; j < string_len; j++) {
+            if (string[i] == string[j]) {
+                if (!have_same) {
+                    criteria->sames[criteria->sames_len++] = i;
+                    have_same = true;
+                }
+                criteria->sames[criteria->sames_len++] = j;
+            }
+        }
+        if (have_same) {
+            criteria->sames[criteria->sames_len++] = SIZE_MAX;
         }
     }
-    free(indexes);
+
     criteria->sames = realloc(criteria->sames, criteria->sames_len * sizeof(size_t));
 
     criteria->diffs = malloc(string_len * sizeof(size_t));
     criteria->diffs_len = 0;
 
-    uint8_t *checked = malloc(0x100);
     memset(checked, 0, 0x100);
     for (size_t i = 0; i < string_len; i++) {
         if (checked[string[i]])
