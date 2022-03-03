@@ -91,6 +91,28 @@ bool matches_criteria(const uint8_t *restrict data, const struct search_criteria
     return true;
 }
 
+void print_translation_of(const uint8_t *from, const uint8_t *to, size_t len) {
+    char tl_table[0x100];
+    memset(tl_table, 0, 0x100);
+
+    for (size_t i = 0; i < len; i++) {
+        if (tl_table[from[i]] != 0 && tl_table[from[i]] != to[i]) {
+            printf("conflict at pos %zi\n", i);
+        }
+        tl_table[from[i]] = to[i];
+    }
+
+    for (size_t i = 0; i < 0x100; i++) {
+        if (tl_table[i] != 0) {
+            if (tl_table[i] == '\'' || tl_table[i] == '\\') {
+                printf("[0x%02zX] = '\\%c', ", i, tl_table[i]);
+            } else {
+                printf("[0x%02zX] = '%c', ", i, tl_table[i]);
+            }
+        }
+    }
+}
+
 #define MAX(x, y) ((x) > (y) ? (x) : (y))
 
 int main(int argc, char **argv) {
@@ -119,16 +141,12 @@ int main(int argc, char **argv) {
             printf("%zu(%c) ", s, search_string[s]);
         }
     }
-    puts("\nDiffs:");
+    puts("\nUniques:");
     for (size_t i = 0; i < criteria->diffs_len; i++) {
         size_t s = criteria->diffs[i];
-        if (s == SIZE_MAX) {
-            printf("\n");
-        } else {
-            printf("%zu(%c) ", s, search_string[s]);
-        }
+        printf("%zu(%c) ", s, search_string[s]);
     }
-    puts("");
+    puts("\n");
 
     size_t buffer_capacity = MAX(0x1000, search_string_len * 2);
     uint8_t *buffer = malloc(buffer_capacity);
@@ -143,7 +161,9 @@ int main(int argc, char **argv) {
         buffer_filled += read;
         for (size_t i = 0; i <= buffer_filled - search_string_len; i++) {
             if (matches_criteria(&buffer[i], criteria)) {
-                printf("%zx\n", i + abs_pos);
+                printf("%zx: ", i + abs_pos);
+                print_translation_of((char *)&buffer[i], search_string, search_string_len);
+                putc('\n', stdout);
             }
         }
 
