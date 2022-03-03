@@ -18,12 +18,17 @@ struct search_criteria *generate_search_criteria_from_string(const char *string)
     struct search_criteria *restrict criteria = malloc(sizeof(struct search_criteria));
     criteria->sames = malloc(sizeof(size_t) * string_len * 2);
     criteria->sames_len = 0;
+    criteria->diffs = malloc(string_len * sizeof(size_t));
+    criteria->diffs_len = 0;
 
     uint8_t *checked = malloc(0x100);
     memset(checked, 0, 0x100);
+
     for (size_t i = 0; i < string_len; i++) {
         if (checked[string[i]] != 0) continue;
         checked[string[i]] = 1;
+
+        criteria->diffs[criteria->diffs_len++] = i;
 
         bool have_same = false;
         for (size_t j = i + 1; j < string_len; j++) {
@@ -40,19 +45,9 @@ struct search_criteria *generate_search_criteria_from_string(const char *string)
         }
     }
 
-    criteria->sames = realloc(criteria->sames, criteria->sames_len * sizeof(size_t));
-
-    criteria->diffs = malloc(string_len * sizeof(size_t));
-    criteria->diffs_len = 0;
-
-    memset(checked, 0, 0x100);
-    for (size_t i = 0; i < string_len; i++) {
-        if (checked[string[i]])
-            continue;
-        checked[string[i]] = 1;
-        criteria->diffs[criteria->diffs_len++] = i;
-    }
     free(checked);
+
+    criteria->sames = realloc(criteria->sames, criteria->sames_len * sizeof(size_t));
     criteria->diffs = realloc(criteria->diffs, criteria->diffs_len * sizeof(size_t));
 
     return criteria;
