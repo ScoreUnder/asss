@@ -91,9 +91,8 @@ size_t get_skip_from_same_gap(const struct search_criteria *restrict criteria, s
         }
     }
 
-    // No possible same-gaps to skip to, skip whole section
-    assert(search_len > end);
-    return search_len - end;
+    // No possible same-gaps to skip to, skip until this gap doesn't exist
+    return start + 1;
 }
 
 size_t get_search_skip(const uint8_t *restrict data, const struct search_criteria *restrict criteria, size_t search_len) {
