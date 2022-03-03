@@ -1,4 +1,3 @@
-#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -80,12 +79,11 @@ struct search_criteria *generate_search_criteria_from_string(const char *string)
     return criteria;
 }
 
-size_t get_skip_from_same_gap(const struct search_criteria *restrict criteria, size_t start, size_t end, size_t search_len) {
+size_t get_skip_from_same_gap(const struct search_criteria *restrict criteria, size_t start, size_t end) {
     size_t gap_size = end - start - 1;
     if (gap_size < criteria->same_gaps_len) {
         size_t first_gap_pos = criteria->same_gaps[gap_size];
 
-        assert(first_gap_pos != start);
         if (start > first_gap_pos) {
             return start - first_gap_pos;
         }
@@ -95,7 +93,7 @@ size_t get_skip_from_same_gap(const struct search_criteria *restrict criteria, s
     return start + 1;
 }
 
-size_t get_search_skip(const uint8_t *restrict data, const struct search_criteria *restrict criteria, size_t search_len) {
+size_t get_search_skip(const uint8_t *restrict data, const struct search_criteria *restrict criteria) {
     for (size_t i = 0; i + 1 < criteria->sames_len; i++) {
         uint8_t val = data[criteria->sames[i]];
         while (criteria->sames[i + 1] != SIZE_MAX) {
@@ -110,7 +108,7 @@ size_t get_search_skip(const uint8_t *restrict data, const struct search_criteri
         uint8_t val = data[criteria->diffs[i]];
         for (size_t j = i + 1; j < criteria->diffs_len; j++) {
             if (val == data[criteria->diffs[j]])
-                return get_skip_from_same_gap(criteria, criteria->diffs[i], criteria->diffs[j], search_len);
+                return get_skip_from_same_gap(criteria, criteria->diffs[i], criteria->diffs[j]);
         }
     }
     return 0;
@@ -188,14 +186,15 @@ int main(int argc, char **argv) {
             break;
 
         buffer_filled += read;
-        for (size_t i = 0; i <= buffer_filled - search_string_len; i++) {
-            size_t skip = get_search_skip(&buffer[i], criteria, search_string_len);
+        for (size_t i = 0; i <= buffer_filled - search_string_len;) {
+            size_t skip = get_search_skip(&buffer[i], criteria);
             if (skip == 0) {
                 printf("%zx: ", i + abs_pos);
                 print_translation_of(&buffer[i], (const uint8_t*) search_string, search_string_len);
                 putc('\n', stdout);
+                i++;
             } else {
-                i += skip - 1;
+                i += skip;
             }
         }
 
