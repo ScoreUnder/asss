@@ -55,7 +55,7 @@ struct search_criteria *generate_search_criteria_from_string(const char *string)
 }
 
 bool matches_criteria(const uint8_t *restrict data, const struct search_criteria *restrict criteria) {
-    for (size_t i = 0; i < criteria->sames_len - 1; i++) {
+    for (size_t i = 0; i + 1 < criteria->sames_len; i++) {
         uint8_t val = data[criteria->sames[i]];
         while (criteria->sames[i + 1] != SIZE_MAX) {
             if (val != data[criteria->sames[i + 1]])
