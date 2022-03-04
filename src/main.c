@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <limits.h>
 
 struct search_criteria {
@@ -55,20 +56,22 @@ struct search_criteria *generate_search_criteria_from_string(const char *string)
 }
 
 bool matches_criteria(const uint8_t *restrict data, const struct search_criteria *restrict criteria) {
-    for (size_t i = 0; i + 1 < criteria->sames_len; i++) {
-        uint8_t val = data[criteria->sames[i]];
-        while (criteria->sames[i + 1] != SIZE_MAX) {
-            if (val != data[criteria->sames[i + 1]])
+    size_t *sames = criteria->sames + criteria->sames_len;
+    for (ptrdiff_t i = -criteria->sames_len; i + 1 < 0; i++) {
+        uint8_t val = data[sames[i]];
+        while (sames[i + 1] < SIZE_MAX) {
+            if (val != data[sames[i + 1]])
                 return false;
             i++;
         }
         i++;
     }
 
-    for (size_t i = 0; i < criteria->diffs_len; i++) {
-        uint8_t val = data[criteria->diffs[i]];
-        for (size_t j = i + 1; j < criteria->diffs_len; j++) {
-            if (val == data[criteria->diffs[j]])
+    size_t *diffs = criteria->diffs + criteria->diffs_len;
+    for (ptrdiff_t i = -criteria->diffs_len; i + 1 < 0; i++) {
+        uint8_t val = data[diffs[i]];
+        for (ptrdiff_t j = i + 1; j < 0; j++) {
+            if (val == data[diffs[j]])
                 return false;
         }
     }
