@@ -70,5 +70,12 @@ for (size_t j = 0; j < search_string_len; j++) {
 
 </details>
 
+For comparison, the original Arbitrary Search takes roughly 57 seconds to
+complete the same operation on my machine, which is what motivated this
+project. Perhaps some of this is WINE overhead, but I don't remember it being
+any faster back in my Windows days. It is also worth noting that the algorithm
+used by the original Arbitrary Search will exlcude any results which contain
+the 0xFF byte.
+
 
 [predecessor]: http://www.thealmightyguru.com/Games/Hacking/Hacking-Programs.html
