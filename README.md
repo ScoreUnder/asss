@@ -77,5 +77,26 @@ any faster back in my Windows days. It is also worth noting that the algorithm
 used by the original Arbitrary Search will exlcude any results which contain
 the 0xFF byte.
 
+## But why can't I just use strings/grep?
+
+If you're here from outside of the rom-hacking world, it may seem like common
+sense to use ASCII or UTF-8 for everything. But many older ROMs use alternative
+character sets, or tile indexes into a big font sprite, or any number of
+interesting tricks which don't quite line up with existing character encodings.
+This tool will attempt to find strings encoded like that, and report to the
+user the translation table required to decode the string.
+
+To frame this very differently, it can be thought of as a tool to detect
+potential known-plaintext matches within a corpus which has had a substitution
+cipher applied. It will report to the user the position of the detected match
+and the character substitutions which lead to the match.
+
+## Limitations
+
+This tool assumes a 1-to-1 relationship between input (search) bytes and ROM
+bytes. This means that you should not use multi-byte characters as part of the
+search query, and for best results you should be aware of the possibility of
+multi-byte characters or multi-character bytes in your ROM (e.g. Pokémon Gold's
+single-byte `'d` character).
 
 [predecessor]: http://www.thealmightyguru.com/Games/Hacking/Hacking-Programs.html
