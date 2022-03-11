@@ -1,8 +1,8 @@
 CFLAGS = -O2 -ggdb -Wall -Wextra -pedantic -std=c11
-OBJS = src/main.o
+OBJS = src/main.o src/search.o
 OUT = asss
 
-$(OUT): src/main.o
+$(OUT): $(OBJS)
 	$(LINK.c) -o $@ $^
 
 clean:
