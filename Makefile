@@ -13,6 +13,8 @@ OBJS_GUI = src/gui/main_gtk.o src/gui/search_results_model.o src/search.o
 OUT = asss
 OUT_GUI = asss-gui
 
+all: $(OUT) $(OUT_GUI)
+
 $(OUT): $(OBJS)
 	$(LINK.c) -o $@ $^
 
@@ -22,4 +24,4 @@ $(OUT_GUI): $(OBJS_GUI)
 clean:
 	-rm -f -- $(OBJS) $(OUT) $(OBJS_GUI) $(OUT_GUI)
 
-.PHONY: clean
+.PHONY: all clean
