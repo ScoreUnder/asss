@@ -114,7 +114,6 @@ void search_clicked(GtkButton *button, gpointer user_data) {
 
 void app_main(GtkApplication *app, gpointer user_data) {
   (void)user_data;
-  gtk_init();
   GtkWidget *window = gtk_application_window_new(app);
   gtk_window_set_title(GTK_WINDOW(window),
                        "Arbitrary Search spiritual successor");
