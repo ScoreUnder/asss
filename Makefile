@@ -1,5 +1,8 @@
-GTK_FLAGS != pkg-config --cflags gtk4
-GTK_LIBS  != pkg-config --libs   gtk4
+TOOLCHAIN_PREFIX =
+CC = $(TOOLCHAIN_PREFIX)gcc
+
+GTK_FLAGS != $(TOOLCHAIN_PREFIX)pkg-config --cflags gtk4
+GTK_LIBS  != $(TOOLCHAIN_PREFIX)pkg-config --libs   gtk4
 
 CPPFLAGS = -Isrc
 CFLAGS   = $(GTK_FLAGS) -Og -ggdb -Wall -Wextra -pedantic -std=c11
@@ -14,7 +17,7 @@ $(OUT): $(OBJS)
 	$(LINK.c) -o $@ $^
 
 $(OUT_GUI): $(OBJS_GUI)
-	$(LINK.c) $(GTK_LIBS) -o $@ $^
+	$(LINK.c) -o $@ $^ $(GTK_LIBS)
 
 clean:
 	-rm -f -- $(OBJS) $(OUT) $(OBJS_GUI) $(OUT_GUI)

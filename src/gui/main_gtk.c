@@ -159,7 +159,7 @@ void app_main(GtkApplication *app, gpointer user_data) {
 
   GtkWidget *search_string_entry = gtk_search_entry_new();
   gtk_widget_set_hexpand(search_string_entry, TRUE);
-  GValue value;
+  GValue value = {0};
   g_value_init(&value, G_TYPE_BOOLEAN);
   g_value_set_boolean(&value, TRUE);
   g_object_set_property(G_OBJECT(search_string_entry), "activates-default",
