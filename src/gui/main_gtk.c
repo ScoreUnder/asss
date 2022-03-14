@@ -29,12 +29,12 @@ void browse_dialog_response(GtkDialog *dialog, gint response_id,
 void browse_clicked(GtkButton *button, gpointer user_data) {
   (void)button;
   struct browse_clicked_data *data = user_data;
-  GtkWidget *dialog = gtk_file_chooser_dialog_new(
-      "Open ROM", data->window, GTK_FILE_CHOOSER_ACTION_OPEN, "_Cancel",
-      GTK_RESPONSE_CANCEL, "_Open", GTK_RESPONSE_ACCEPT, NULL);
+  GtkFileChooserNative *dialog = gtk_file_chooser_native_new(
+      "Open ROM", data->window, GTK_FILE_CHOOSER_ACTION_OPEN, "_Open",
+      "_Cancel");
   g_signal_connect(dialog, "response", G_CALLBACK(browse_dialog_response),
                    data);
-  gtk_widget_show(dialog);
+  gtk_native_dialog_show(GTK_NATIVE_DIALOG(dialog));
 }
 
 void free_from_closure(gpointer data, GClosure *closure) {
