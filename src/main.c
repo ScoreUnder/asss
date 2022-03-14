@@ -34,7 +34,7 @@ struct search_str {
 
 void match_callback(off_t pos, const uint8_t *buffer, void *userdata) {
     struct search_str *str = (struct search_str *)userdata;
-    printf("%zx: ", pos);
+    printf("%llx: ", (unsigned long long) pos);
     print_translation_of(buffer, (const uint8_t*) str->str, str->len);
     putc('\n', stdout);
 }
