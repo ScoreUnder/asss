@@ -20,12 +20,17 @@ OUT_GUI = asss-gui
 all: $(OUT) $(OUT_GUI)
 
 $(OUT): $(OBJS)
-	$(LINK.c) -o $@ $^
+	$(LINK.c) -o $@ $(OBJS)
 
 $(OUT_GUI): $(OBJS_GUI)
-	$(LINK.c) -o $@ $^ $(GTK_LIBS)
+	$(LINK.c) -o $@ $(OBJS_GUI) $(GTK_LIBS)
 
 clean:
 	-rm -f -- $(OBJS) $(OUT) $(OBJS_GUI) $(OUT_GUI)
+
+.SUFFIXES: .c .o
+
+.c.o:
+	$(COMPILE.c) -o $@ $<
 
 .PHONY: all clean
