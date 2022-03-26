@@ -11,7 +11,7 @@ CFLAGS_PR_debug = -Og -ggdb -Werror
 CFLAGS_PR_release = -O3 -ggdb
 CFLAGS   = $(GTK_FLAGS) $(CFLAGS_PR_$(PROFILE)) -Wall -Wextra -pedantic -std=c11 $(CUSTOM_CFLAGS)
 
-OBJS = src/main.o src/search.o
+OBJS = src/main.o src/search.o src/display.o
 OBJS_GUI = src/gui/main_gtk.o src/gui/search_results_model.o src/search.o
 
 OUT = asss
