@@ -15,10 +15,12 @@ struct search_criteria {
     size_t diffs_len;
 };
 
-struct search_criteria *generate_search_criteria_from_string(const char *string) {
+struct search_criteria *generate_search_criteria_from_string(
+    const char *string) {
     size_t string_len = strlen(string);
 
-    struct search_criteria *restrict criteria = malloc(sizeof(struct search_criteria));
+    struct search_criteria *restrict criteria =
+        malloc(sizeof(struct search_criteria));
     criteria->sames = malloc(sizeof(size_t) * string_len * 2);
     criteria->sames_len = 0;
     criteria->diffs = malloc(string_len * sizeof(size_t));
@@ -51,8 +53,10 @@ struct search_criteria *generate_search_criteria_from_string(const char *string)
 
     free(checked);
 
-    criteria->sames = realloc(criteria->sames, criteria->sames_len * sizeof(size_t));
-    criteria->diffs = realloc(criteria->diffs, criteria->diffs_len * sizeof(size_t));
+    criteria->sames =
+        realloc(criteria->sames, criteria->sames_len * sizeof(size_t));
+    criteria->diffs =
+        realloc(criteria->diffs, criteria->diffs_len * sizeof(size_t));
 
     return criteria;
 }
@@ -63,13 +67,13 @@ void free_search_criteria(struct search_criteria *criteria) {
     free(criteria);
 }
 
-bool matches_criteria(const uint8_t *restrict data, const struct search_criteria *restrict criteria) {
+bool matches_criteria(const uint8_t *restrict data,
+                      const struct search_criteria *restrict criteria) {
     size_t *sames = criteria->sames + criteria->sames_len;
     for (ptrdiff_t i = -criteria->sames_len; i + 1 < 0; i++) {
         uint8_t val = data[sames[i]];
         while (sames[i + 1] < SIZE_MAX) {
-            if (val != data[sames[i + 1]])
-                return false;
+            if (val != data[sames[i + 1]]) return false;
             i++;
         }
         i++;
@@ -79,14 +83,14 @@ bool matches_criteria(const uint8_t *restrict data, const struct search_criteria
     for (ptrdiff_t i = -criteria->diffs_len; i + 1 < 0; i++) {
         uint8_t val = data[diffs[i]];
         for (ptrdiff_t j = i + 1; j < 0; j++) {
-            if (val == data[diffs[j]])
-                return false;
+            if (val == data[diffs[j]]) return false;
         }
     }
     return true;
 }
 
-void print_debug(const struct search_criteria *restrict criteria, const char *restrict search_string) {
+void print_debug(const struct search_criteria *restrict criteria,
+                 const char *restrict search_string) {
     puts("Sames:");
     for (size_t i = 0; i < criteria->sames_len; i++) {
         size_t s = criteria->sames[i];
@@ -106,9 +110,11 @@ void print_debug(const struct search_criteria *restrict criteria, const char *re
 
 #define MAX(x, y) ((x) > (y) ? (x) : (y))
 
-void search_matches_in_file(FILE *input, const char* search_string, bool debug, match_callback_fn match_callback, void *userdata) {
+void search_matches_in_file(FILE *input, const char *search_string, bool debug,
+                            match_callback_fn match_callback, void *userdata) {
     size_t search_string_len = strlen(search_string);
-    struct search_criteria *restrict criteria = generate_search_criteria_from_string(search_string);
+    struct search_criteria *restrict criteria =
+        generate_search_criteria_from_string(search_string);
 
     if (debug) {
         print_debug(criteria, search_string);
@@ -120,9 +126,9 @@ void search_matches_in_file(FILE *input, const char* search_string, bool debug, 
     off_t abs_pos = 0;
 
     while (true) {
-        size_t read = fread(&buffer[buffer_filled], 1, buffer_capacity - buffer_filled, input);
-        if (read == 0)
-            break;
+        size_t read = fread(&buffer[buffer_filled], 1,
+                            buffer_capacity - buffer_filled, input);
+        if (read == 0) break;
 
         buffer_filled += read;
         for (size_t i = 0; i <= buffer_filled - search_string_len; i++) {
