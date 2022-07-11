@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <ctype.h>
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
@@ -30,6 +31,13 @@ uint16_t find_base(uint16_t base, uint8_t char_index, size_t i) {
     }
 }
 
+static void fill_speculative_sequence(char speculative[STATIC 0x100], int base,
+                                      char base_ascii, size_t base_size) {
+    for (size_t i = 0; i < base_size && i + base < 0x100; i++) {
+        speculative[i + base] = base_ascii + i;
+    }
+}
+
 void make_speculative(char speculative[STATIC 0x100],
                       const char table[STATIC 0x100]) {
     memset(speculative, 0, 0x100);
@@ -39,30 +47,20 @@ void make_speculative(char speculative[STATIC 0x100],
     uint16_t digit_base = missing;
 
     for (size_t i = 0; i < 0x100; i++) {
-        if (table[i] >= 'A' && table[i] <= 'Z') {
+        // Note: this program uses the C locale; the following is<x> functions
+        // must all assume ASCII for this procedure to make sense.
+        if (isupper(table[i])) {
             upper_base = find_base(upper_base, table[i] - 'A', i);
-        } else if (table[i] >= 'a' && table[i] <= 'z') {
+        } else if (islower(table[i])) {
             lower_base = find_base(lower_base, table[i] - 'a', i);
-        } else if (table[i] >= '0' && table[i] <= '9') {
+        } else if (isdigit(table[i])) {
             digit_base = find_base(digit_base, table[i] - '0', i);
         }
     }
 
-    if (upper_base < 0x100) {
-        for (size_t i = 0; i < 26 && i + upper_base < 0x100; i++) {
-            speculative[i + upper_base] = 'A' + i;
-        }
-    }
-    if (lower_base < 0x100) {
-        for (size_t i = 0; i < 26 && i + lower_base < 0x100; i++) {
-            speculative[i + lower_base] = 'a' + i;
-        }
-    }
-    if (digit_base < 0x100) {
-        for (size_t i = 0; i < 10 && i + digit_base < 0x100; i++) {
-            speculative[i + digit_base] = '0' + i;
-        }
-    }
+    fill_speculative_sequence(speculative, upper_base, 'A', 26);
+    fill_speculative_sequence(speculative, lower_base, 'a', 26);
+    fill_speculative_sequence(speculative, digit_base, '0', 10);
 }
 
 void print_hex_result(char table[STATIC 0x100], char speculative[STATIC 0x100],
