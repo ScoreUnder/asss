@@ -69,13 +69,12 @@ void free_search_criteria(struct search_criteria *criteria) {
 bool matches_criteria(const uint8_t *restrict data,
                       const struct search_criteria *restrict criteria) {
     size_t *sames = criteria->sames + criteria->sames_len;
-    for (ptrdiff_t i = -criteria->sames_len; i + 1 < 0; i++) {
+    for (ptrdiff_t i = -criteria->sames_len; i + 1 < 0; i += 2) {
         uint8_t val = data[sames[i]];
         while (sames[i + 1] < SIZE_MAX) {
             if (val != data[sames[i + 1]]) return false;
             i++;
         }
-        i++;
     }
 
     size_t *diffs = criteria->diffs + criteria->diffs_len;
