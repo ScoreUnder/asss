@@ -28,9 +28,14 @@ $(OUT_GUI): $(OBJS_GUI)
 clean:
 	-rm -f -- $(OBJS) $(OUT) $(OBJS_GUI) $(OUT_GUI) $(OBJS:.o=.gcda)
 
+install: asss asss-gui
+	@if [ -z '$(DESTDIR)' ]; then echo 'Please set DESTDIR on the make command line' >&2; exit 1; fi
+	install -Dm755 asss '$(DESTDIR)/bin/asss'
+	install -Dm755 asss-gui '$(DESTDIR)/bin/asss-gui'
+
 .SUFFIXES: .c .o
 
 .c.o:
 	$(COMPILE.c) -o $@ $<
 
-.PHONY: all clean
+.PHONY: all clean install
