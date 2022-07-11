@@ -32,7 +32,7 @@ void browse_dialog_response(GtkDialog *dialog, gint response_id,
             g_free(path);
         }
     }
-    gtk_window_destroy(GTK_WINDOW(dialog));
+    g_object_unref(dialog);
     gtk_window_set_focus(data->window, data->next);
 }
 
