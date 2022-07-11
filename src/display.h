@@ -15,12 +15,13 @@ typedef struct {
     bool needs_html_escape;
 } match_colours;
 
-void make_decode_table(char tl_table[0x100], const uint8_t *from,
+void make_decode_table(char tl_table[static 0x100], const uint8_t *from,
                        const uint8_t *to, size_t len);
 
 uint16_t find_base(uint16_t base, uint8_t char_index, size_t i);
 
-void make_speculative(char speculative[0x100], const char table[0x100]);
+void make_speculative(char speculative[static 0x100],
+                      const char table[static 0x100]);
 
 typedef void printflike(void *userdata, const char *format, ...);
 

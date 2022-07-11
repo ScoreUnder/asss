@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include "display.h"
 
-void make_decode_table(char tl_table[0x100], const uint8_t *from,
+void make_decode_table(char tl_table[static 0x100], const uint8_t *from,
                        const uint8_t *to, size_t len) {
     memset(tl_table, 0, 0x100);
 
@@ -30,7 +30,8 @@ uint16_t find_base(uint16_t base, uint8_t char_index, size_t i) {
     }
 }
 
-void make_speculative(char speculative[0x100], const char table[0x100]) {
+void make_speculative(char speculative[static 0x100],
+                      const char table[static 0x100]) {
     memset(speculative, 0, 0x100);
 
     uint16_t upper_base = missing;
@@ -64,7 +65,7 @@ void make_speculative(char speculative[0x100], const char table[0x100]) {
     }
 }
 
-void print_hex_result(char table[0x100], char speculative[0x100],
+void print_hex_result(char table[static 0x100], char speculative[static 0x100],
                       const uint8_t *buf, size_t len,
                       const match_colours *colours, printflike *pf,
                       void *userdata) {
@@ -90,7 +91,7 @@ void print_hex_result(char table[0x100], char speculative[0x100],
     pf(userdata, "%s", colours->end);
 }
 
-void print_text_result(char table[0x100], char speculative[0x100],
+void print_text_result(char table[static 0x100], char speculative[static 0x100],
                        const uint8_t *buf, size_t len,
                        const match_colours *colours, printflike *pf,
                        void *userdata) {
