@@ -26,8 +26,7 @@ struct search_criteria *generate_search_criteria_from_string(
     criteria->diffs = malloc(string_len * sizeof(size_t));
     criteria->diffs_len = 0;
 
-    uint8_t *checked = malloc(0x100);
-    memset(checked, 0, 0x100);
+    uint8_t *checked = calloc(0x100, sizeof *checked);
 
     for (size_t i = 0; i < string_len; i++) {
         uint8_t c = string[i];
