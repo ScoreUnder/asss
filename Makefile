@@ -8,7 +8,7 @@ GTK_LIBS  != $(TOOLCHAIN_PREFIX)pkg-config --libs   gtk4
 
 CPPFLAGS = -Isrc -D_POSIX_C_SOURCE=200809L
 CFLAGS_PR_debug = -Og -ggdb -Werror
-CFLAGS_PR_release = -O3 -ggdb
+CFLAGS_PR_release = -O3 -ggdb -DNDEBUG
 CFLAGS   = $(GTK_FLAGS) $(CFLAGS_PR_$(PROFILE)) -Wall -Wextra -pedantic -std=c11 $(CUSTOM_CFLAGS)
 
 OBJS = src/main.o src/search.o src/display.o
