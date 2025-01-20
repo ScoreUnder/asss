@@ -32,12 +32,9 @@ void print_translation_of(const uint8_t *from, const uint8_t *to, size_t len) {
     }
 }
 
-void pf_printf(void *_unused, const char *format, ...) {
+void put_puts(void *_unused, const char *str) {
     (void)_unused;
-    va_list args;
-    va_start(args, format);
-    vprintf(format, args);
-    va_end(args);
+    fputs(str, stdout);
 }
 
 struct search_state {
@@ -94,7 +91,7 @@ int main(int argc, char **argv) {
 
         for (size_t i = 0; i < state.offset_count; i++) {
             print_detailed_result(input, state.offsets[i], state.str, state.len,
-                                  &term_colours, pf_printf, NULL);
+                                  &term_colours, put_puts, NULL);
         }
     }
 

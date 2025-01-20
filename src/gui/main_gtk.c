@@ -65,12 +65,9 @@ struct search_find_data {
     FILE *input_file;
 };
 
-void pf_g_string_printf(void *userdata, const char *format, ...) {
-    va_list args;
-    va_start(args, format);
-    GString *str = (GString *)userdata;
-    g_string_append_vprintf(str, format, args);
-    va_end(args);
+void put_g_string(void *userdata, const char *str) {
+    GString *gstr = (GString *)userdata;
+    g_string_append(gstr, str);
 }
 
 void search_result_callback(off_t pos, const uint8_t *buffer, void *user_data) {
@@ -79,7 +76,7 @@ void search_result_callback(off_t pos, const uint8_t *buffer, void *user_data) {
     GString *str = g_string_new("<span face=\"mono\">");
     print_detailed_result(find_data->input_file, pos, find_data->search_text,
                           find_data->search_text_len, &pango_colours,
-                          pf_g_string_printf, str);
+                          put_g_string, str);
     g_string_append(str, "</span>");
 
     AsssSearchResult *result = asss_search_result_new(pos, str->str);

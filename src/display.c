@@ -63,11 +63,15 @@ void make_speculative(char speculative[STATIC 0x100],
     fill_speculative_sequence(speculative, digit_base, '0', 10);
 }
 
+static const char hex_chars[] = "0123456789abcdef";
+
 void print_hex_result(char table[STATIC 0x100], char speculative[STATIC 0x100],
                       const uint8_t *buf, size_t len,
-                      const match_colours *colours, printflike *pf,
+                      const match_colours *colours, putslike *put,
                       void *userdata) {
     const char *last_colour = NULL;
+    char hexbuf[3];
+    hexbuf[2] = '\0';
     for (size_t i = 0; i < len; i++) {
         uint8_t c = buf[i];
         const char *colour;
@@ -79,21 +83,27 @@ void print_hex_result(char table[STATIC 0x100], char speculative[STATIC 0x100],
             colour = colours->unknown;
 
         if (colour != last_colour) {
-            const char *changeover =
-                last_colour == NULL ? "" : colours->changeover;
-            pf(userdata, "%s%s", changeover, colour);
+            if (last_colour != NULL)
+                put(userdata, colours->changeover);
+            put(userdata, colour);
             last_colour = colour;
         }
-        pf(userdata, "%02hhx", buf[i]);
+        hexbuf[0] = hex_chars[buf[i] >> 4];
+        hexbuf[1] = hex_chars[buf[i] & 0xf];
+        put(userdata, hexbuf);
     }
-    pf(userdata, "%s", colours->end);
+    if (last_colour != NULL)
+        put(userdata, colours->end);
 }
 
 void print_text_result(char table[STATIC 0x100], char speculative[STATIC 0x100],
                        const uint8_t *buf, size_t len,
-                       const match_colours *colours, printflike *pf,
+                       const match_colours *colours, putslike *put,
                        void *userdata) {
     const char *last_colour = NULL;
+    char formatbuf[3];
+    formatbuf[0] = ' ';
+    formatbuf[2] = '\0';
     for (size_t i = 0; i < len; i++) {
         uint8_t c = buf[i];
         char decoded = ' ';
@@ -109,24 +119,26 @@ void print_text_result(char table[STATIC 0x100], char speculative[STATIC 0x100],
         }
 
         if (colour != last_colour) {
-            const char *changeover =
-                last_colour == NULL ? "" : colours->changeover;
-            pf(userdata, "%s%s", changeover, colour);
+            if (last_colour != NULL)
+                put(userdata, colours->changeover);
+            put(userdata, colour);
             last_colour = colour;
         }
 
         if (colours->needs_html_escape && decoded == '<') {
-            pf(userdata, " &lt;");
+            put(userdata, " &lt;");
         } else {
-            pf(userdata, "%2c", decoded);
+            formatbuf[1] = decoded;
+            put(userdata, formatbuf);
         }
     }
-    pf(userdata, "%s", colours->end);
+    if (last_colour != NULL)
+        put(userdata, colours->end);
 }
 
 void print_detailed_result(FILE *input, off_t offset, const char *search_str,
                            size_t search_str_len, const match_colours *colours,
-                           printflike *pf, void *userdata) {
+                           putslike *put, void *userdata) {
     size_t pre_len = search_str_len;
     if (offset < (off_t)search_str_len) {
         pre_len = (size_t)offset;
@@ -163,12 +175,19 @@ void print_detailed_result(FILE *input, off_t offset, const char *search_str,
     char speculative[0x100];
     make_speculative(speculative, table);
 
-    pf(userdata, "%#010llx ", (unsigned long long)(offset - pre_len));
     size_t pad_len = search_str_len - pre_len;
-    pf(userdata, "%*s", (int)pad_len * 2, "");
-    print_hex_result(table, speculative, buf, pre_len, colours, pf, userdata);
-    pf(userdata, "\n%*s", (int)pad_len * 2 + 11, "");
-    print_text_result(table, speculative, buf, pre_len, colours, pf, userdata);
+
+    char *formatbuf = malloc(pad_len * 2 + 13);
+
+    sprintf(formatbuf, "%#010llx %*s", (unsigned long long)(offset - pre_len), (int)pad_len * 2, "");
+    put(userdata, formatbuf);
+
+    print_hex_result(table, speculative, buf, pre_len, colours, put, userdata);
+
+    sprintf(formatbuf, "\n%*s", (int)pad_len * 2 + 11, "");
+    put(userdata, formatbuf);
+
+    print_text_result(table, speculative, buf, pre_len, colours, put, userdata);
 
     size_t remaining = read_len - pre_len;
     size_t print_offset = pre_len;
@@ -177,18 +196,24 @@ void print_detailed_result(FILE *input, off_t offset, const char *search_str,
         if (print_len > search_str_len) {
             print_len = search_str_len;
         }
-        pf(userdata, "\n%#010llx ",
-           (unsigned long long)(offset + print_offset - pre_len));
+
+        sprintf(formatbuf, "\n%#010llx ", (unsigned long long)(offset + print_offset - pre_len));
+        put(userdata, formatbuf);
+
         print_hex_result(table, speculative, buf + print_offset, print_len,
-                         colours, pf, userdata);
-        pf(userdata, "\n%*s", 11, "");
+                         colours, put, userdata);
+
+        sprintf(formatbuf, "\n%*s", 11, "");
+        put(userdata, formatbuf);
+
         print_text_result(table, speculative, buf + print_offset, print_len,
-                          colours, pf, userdata);
+                          colours, put, userdata);
         remaining -= print_len;
         print_offset += print_len;
     }
-    pf(userdata, "\n\n");
+    put(userdata, "\n\n");
 
+    free(formatbuf);
 cleanup:
     free(buf);
 }

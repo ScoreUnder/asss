@@ -29,10 +29,10 @@ uint16_t find_base(uint16_t base, uint8_t char_index, size_t i);
 void make_speculative(char speculative[STATIC 0x100],
                       const char table[STATIC 0x100]);
 
-typedef void printflike(void *userdata, const char *format, ...);
+typedef void putslike(void *userdata, const char *string);
 
 void print_detailed_result(FILE *input, off_t offset, const char *search_str,
                            size_t search_str_len, const match_colours *colours,
-                           printflike *pf, void *userdata);
+                           putslike *put, void *userdata);
 
 #endif
