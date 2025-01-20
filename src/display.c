@@ -17,8 +17,8 @@ void make_decode_table(char tl_table[STATIC 0x100], const uint8_t *from,
     }
 }
 
-const uint16_t missing = 0x100;
-const uint16_t conflict = 0x101;
+static const uint16_t missing = 0x100;
+static const uint16_t conflict = 0x101;
 
 uint16_t find_base(uint16_t base, uint8_t char_index, size_t i) {
     uint16_t new_base = i - char_index;
