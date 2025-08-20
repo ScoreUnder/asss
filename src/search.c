@@ -115,6 +115,9 @@ void print_debug(const struct search_criteria *restrict criteria,
 void search_matches_in_file(FILE *input, const char *search_string, bool debug,
                             match_callback_fn match_callback, void *userdata) {
     size_t search_string_len = strlen(search_string);
+    if (search_string_len < 2) {
+        return;
+    }
     struct search_criteria *restrict criteria =
         generate_search_criteria_from_string(search_string);
 
@@ -133,6 +136,12 @@ void search_matches_in_file(FILE *input, const char *search_string, bool debug,
         if (read == 0) break;
 
         buffer_filled += read;
+
+        if (buffer_filled < search_string_len) {
+            // File too small
+            break;
+        }
+
         for (size_t i = 0; i <= buffer_filled - search_string_len; i++) {
             if (matches_criteria(&buffer[i], criteria)) {
                 match_callback(i + abs_pos, &buffer[i], userdata);
@@ -140,6 +149,8 @@ void search_matches_in_file(FILE *input, const char *search_string, bool debug,
         }
 
         size_t wrap_amt = search_string_len - 1;
+        // We should never try to wrap more bytes than we have in the buffer
+        assert(wrap_amt <= buffer_filled);
         memmove(buffer, &buffer[buffer_filled - wrap_amt], wrap_amt);
         abs_pos += buffer_filled - wrap_amt;
         buffer_filled = wrap_amt;
