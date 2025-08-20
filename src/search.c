@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
@@ -21,7 +22,7 @@ struct search_criteria *generate_search_criteria_from_string(
 
     struct search_criteria *restrict criteria =
         malloc(sizeof(struct search_criteria));
-    criteria->sames = malloc(sizeof(size_t) * string_len * 2);
+    criteria->sames = malloc(sizeof(size_t) * (string_len + string_len / 2));
     criteria->sames_len = 0;
     criteria->diffs = malloc(string_len * sizeof(size_t));
     criteria->diffs_len = 0;
@@ -51,6 +52,9 @@ struct search_criteria *generate_search_criteria_from_string(
     }
 
     free(checked);
+
+    assert(criteria->sames_len <= string_len + string_len / 2);
+    assert(criteria->diffs_len <= string_len);
 
     criteria->sames =
         realloc(criteria->sames, criteria->sames_len * sizeof(size_t));
