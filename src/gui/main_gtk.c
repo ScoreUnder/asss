@@ -20,31 +20,30 @@ struct browse_clicked_data {
     GtkWidget *next;
 };
 
-void browse_dialog_response(GtkDialog *dialog, gint response_id,
+void browse_dialog_response(GObject *source_object, GAsyncResult *res,
                             gpointer user_data) {
     struct browse_clicked_data *data = user_data;
-    if (response_id == GTK_RESPONSE_ACCEPT) {
-        GFile *file = gtk_file_chooser_get_file(GTK_FILE_CHOOSER(dialog));
-        if (file) {
-            gchar *path = g_file_get_path(file);
-            GtkEntryBuffer *buffer = gtk_entry_get_buffer(data->entry);
-            gtk_entry_buffer_set_text(buffer, path, -1);
-            g_free(path);
-        }
+    GFile *file =
+        gtk_file_dialog_open_finish(GTK_FILE_DIALOG(source_object), res, NULL);
+    if (file) {
+        gchar *path = g_file_get_path(file);
+        GtkEntryBuffer *buffer = gtk_entry_get_buffer(data->entry);
+        gtk_entry_buffer_set_text(buffer, path, -1);
+        g_free(path);
     }
-    g_object_unref(dialog);
+    g_object_unref(source_object);
+    g_object_unref(file);
     gtk_window_set_focus(data->window, data->next);
 }
 
 void browse_clicked(GtkButton *button, gpointer user_data) {
     (void)button;
     struct browse_clicked_data *data = user_data;
-    GtkFileChooserNative *dialog = gtk_file_chooser_native_new(
-        "Open ROM", data->window, GTK_FILE_CHOOSER_ACTION_OPEN, "_Open",
-        "_Cancel");
-    g_signal_connect(dialog, "response", G_CALLBACK(browse_dialog_response),
-                     data);
-    gtk_native_dialog_show(GTK_NATIVE_DIALOG(dialog));
+    GtkFileDialog *dialog = gtk_file_dialog_new();
+    gtk_file_dialog_set_title(dialog, "Open ROM");
+    gtk_file_dialog_set_modal(dialog, false);
+    gtk_file_dialog_open(dialog, data->window, NULL, browse_dialog_response,
+                         data);
 }
 
 void free_from_closure(gpointer data, GClosure *closure) {
@@ -237,31 +236,14 @@ void app_main(GtkApplication *app, gpointer user_data) {
     GtkWidget *save_format_label = gtk_label_new_with_mnemonic("_Format:");
     gtk_box_append(GTK_BOX(search_save_layout), save_format_label);
 
-    GtkListStore *save_format_model =
-        gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_INT);
-    GtkTreeIter tree_append_iter;
-    gtk_list_store_append(save_format_model, &tree_append_iter);
-    gtk_list_store_set(save_format_model, &tree_append_iter, 0, "C99 arrays", 1,
-                       0, -1);
-    gtk_list_store_append(save_format_model, &tree_append_iter);
-    gtk_list_store_set(save_format_model, &tree_append_iter, 0, "C++ arrays", 1,
-                       1, -1);
-    gtk_list_store_append(save_format_model, &tree_append_iter);
-    gtk_list_store_set(save_format_model, &tree_append_iter, 0, "Python dicts",
-                       1, 2, -1);
+    GtkStringList *save_format_labels = gtk_string_list_new(NULL);
+    gtk_string_list_append(save_format_labels, "C99 arrays");
+    gtk_string_list_append(save_format_labels, "C++ arrays");
+    gtk_string_list_append(save_format_labels, "Python dicts");
 
     GtkWidget *save_format_combo =
-        gtk_combo_box_new_with_model(GTK_TREE_MODEL(save_format_model));
-    g_object_unref(save_format_model);
-    gtk_widget_set_hexpand(save_format_combo, TRUE);
-
-    GtkCellRenderer *renderer = gtk_cell_renderer_text_new();
-    gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(save_format_combo), renderer,
-                               TRUE);
-    gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(save_format_combo), renderer,
-                                   "text", 0, NULL);
-
-    gtk_combo_box_set_active(GTK_COMBO_BOX(save_format_combo), 0);
+        gtk_drop_down_new(G_LIST_MODEL(save_format_labels), NULL);
+    gtk_drop_down_set_selected(GTK_DROP_DOWN(save_format_combo), 0);
 
     gtk_box_append(GTK_BOX(search_save_layout), save_format_combo);
 
