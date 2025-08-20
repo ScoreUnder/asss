@@ -18,7 +18,7 @@ match_colours term_colours = {
 };
 
 void print_translation_of(const uint8_t *from, const uint8_t *to, size_t len) {
-    char tl_table[0x100];
+    uint8_t tl_table[0x100];
     make_decode_table(tl_table, from, to, len);
 
     for (size_t i = 0; i < 0x100; i++) {

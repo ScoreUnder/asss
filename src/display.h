@@ -21,13 +21,13 @@ typedef struct {
 #define STATIC static
 #endif
 
-void make_decode_table(char tl_table[STATIC 0x100], const uint8_t *from,
+void make_decode_table(uint8_t tl_table[STATIC 0x100], const uint8_t *from,
                        const uint8_t *to, size_t len);
 
 uint16_t find_base(uint16_t base, uint8_t char_index, size_t i);
 
-void make_speculative(char speculative[STATIC 0x100],
-                      const char table[STATIC 0x100]);
+void make_speculative(uint8_t speculative[STATIC 0x100],
+                      const uint8_t table[STATIC 0x100]);
 
 typedef void putslike(void *userdata, const char *string);
 
