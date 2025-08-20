@@ -8,8 +8,8 @@
 
 struct search_criteria;
 
-struct search_criteria *
-generate_search_criteria_from_string(const char *string);
+struct search_criteria *generate_search_criteria_from_string(
+    const char *string);
 
 void free_search_criteria(struct search_criteria *criteria);
 

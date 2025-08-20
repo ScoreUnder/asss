@@ -84,8 +84,7 @@ void print_hex_result(uint8_t table[STATIC 0x100],
             colour = colours->unknown;
 
         if (colour != last_colour) {
-            if (last_colour != NULL)
-                put(userdata, colours->changeover);
+            if (last_colour != NULL) put(userdata, colours->changeover);
             put(userdata, colour);
             last_colour = colour;
         }
@@ -93,8 +92,7 @@ void print_hex_result(uint8_t table[STATIC 0x100],
         hexbuf[1] = hex_chars[buf[i] & 0xf];
         put(userdata, hexbuf);
     }
-    if (last_colour != NULL)
-        put(userdata, colours->end);
+    if (last_colour != NULL) put(userdata, colours->end);
 }
 
 void print_text_result(uint8_t table[STATIC 0x100],
@@ -120,8 +118,7 @@ void print_text_result(uint8_t table[STATIC 0x100],
         }
 
         if (colour != last_colour) {
-            if (last_colour != NULL)
-                put(userdata, colours->changeover);
+            if (last_colour != NULL) put(userdata, colours->changeover);
             put(userdata, colour);
             last_colour = colour;
         }
@@ -133,8 +130,7 @@ void print_text_result(uint8_t table[STATIC 0x100],
             put(userdata, formatbuf);
         }
     }
-    if (last_colour != NULL)
-        put(userdata, colours->end);
+    if (last_colour != NULL) put(userdata, colours->end);
 }
 
 void print_detailed_result(FILE *input, off_t offset, const char *search_str,
@@ -180,7 +176,8 @@ void print_detailed_result(FILE *input, off_t offset, const char *search_str,
 
     char *formatbuf = malloc(pad_len * 2 + 13);
 
-    sprintf(formatbuf, "%#010llx %*s", (unsigned long long)(offset - pre_len), (int)pad_len * 2, "");
+    sprintf(formatbuf, "%#010llx %*s", (unsigned long long)(offset - pre_len),
+            (int)pad_len * 2, "");
     put(userdata, formatbuf);
 
     print_hex_result(table, speculative, buf, pre_len, colours, put, userdata);
@@ -198,7 +195,8 @@ void print_detailed_result(FILE *input, off_t offset, const char *search_str,
             print_len = search_str_len;
         }
 
-        sprintf(formatbuf, "\n%#010llx ", (unsigned long long)(offset + print_offset - pre_len));
+        sprintf(formatbuf, "\n%#010llx ",
+                (unsigned long long)(offset + print_offset - pre_len));
         put(userdata, formatbuf);
 
         print_hex_result(table, speculative, buf + print_offset, print_len,
